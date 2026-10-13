@@ -15,7 +15,7 @@ variable {α β γ : Type}
   Curry a function, i.e., instead of taking a pair of arguments it takes one
   argument at a time -/
 def curry (f : (α × β) → γ) : α → β → γ :=
-  sorry
+  fun n1 => fun n2 => f (n1, n2)
 
 /-- info: true -/
 #guard_msgs in
@@ -25,8 +25,7 @@ def curry (f : (α × β) → γ) : α → β → γ :=
   Uncurry a function, i.e., instead of taking one argument at a time it takes a
   pair of arguments -/
 def uncurry (f : α → β → γ) : (α × β) → γ :=
-  sorry
-
+  fun n1 => f n1.1 n1.2
 /-- info: true -/
 #guard_msgs in
 #eval (uncurry (fun (a b : ℕ) => a * b)) (2, 3) == 6
@@ -57,8 +56,9 @@ def ℓ₄ : MyList := .cons 3 (.cons 2 (.cons 1 .nil))
   of the list and returns a new result, and the initial value (also the result
   if the list is empty). -/
 def fold {α : Type} (ℓ : MyList) (f : α → ℤ → α) (init : α) : α :=
-  sorry
-
+  match ℓ with
+  | nil => init
+  | cons z tl => fold tl f (f init z)
 /-- info: 6 -/
 #guard_msgs in
 #eval ℓ₁.fold (fun acc z => acc * z) 1
@@ -73,7 +73,7 @@ def fold {α : Type} (ℓ : MyList) (f : α → ℤ → α) (init : α) : α :=
 /-
   Returns the reverse of `ℓ` -/
 def reverse (ℓ : MyList) : MyList :=
-  sorry
+  ℓ.fold (fun l1 v => cons v l1) nil
 
 /-- info: true -/
 #guard_msgs in
@@ -82,7 +82,7 @@ def reverse (ℓ : MyList) : MyList :=
 /-
   Returns `ℓ₁ ++ ℓ₂` -/
 def append (ℓ₁ ℓ₂ : MyList) : MyList :=
-  sorry
+  (ℓ₂.fold (fun l1 v => cons v l1) ℓ₁.reverse).reverse
 
 /-- info: true -/
 #guard_msgs in
@@ -91,7 +91,7 @@ def append (ℓ₁ ℓ₂ : MyList) : MyList :=
 /-
   Returns whether any of the elements satisfy the predicate -/
 def any (ℓ : MyList) (P : ℤ → Bool) : Bool :=
-  sorry
+  ℓ.fold (fun b v => b ∨ P v) False
 
 /-- info: true -/
 #guard_msgs in
@@ -104,7 +104,7 @@ def any (ℓ : MyList) (P : ℤ → Bool) : Bool :=
 /-
   Returns whether all of the elements satisfy the predicate -/
 def all (ℓ : MyList) (P : ℤ → Bool) : Bool :=
-  sorry
+  ℓ.fold (fun b v => b ∧ P v) True
 
 /-- info: true -/
 #guard_msgs in
@@ -117,7 +117,7 @@ def all (ℓ : MyList) (P : ℤ → Bool) : Bool :=
 /-
   Returns those elements that satisfy the predicate -/
 def filter (ℓ : MyList) (P : ℤ → Bool) : MyList :=
-  sorry
+   ℓ.fold (fun l1 v => if P v then cons v l1 else l1) nil
 
 /-- info: true -/
 #guard_msgs in
@@ -136,9 +136,24 @@ topic::P3
   first appears in the input list. The `#guard_msgs` test immediately below
   should pass with no errors. You may define nested helper functions if you find
   them helpful. -/
-def word_count (ℓ : List String) : List (String × ℕ) :=
-  sorry
 
+def add_to_val (ℓ : List (String × ℕ)) (s : String) : List (String × ℕ) :=
+  match ℓ with
+  | [] => []
+  | x :: xs => if x.1 == s then (x.1, x.2+1)::(add_to_val xs s) else x::(add_to_val xs s)
+
+def word_count (ℓ : List String) : List (String × ℕ) :=
+  (count_word ℓ.reverse).reverse
+where count_word (ℓ : List String) : List (String × ℕ) :=
+  match ℓ with
+  | [] => []
+  | x :: xs =>
+    if ((count_word xs).filter (fun (z,_) => (z == x))).length == 0 then
+      [(x,1)] ++ (count_word xs)
+    else
+      add_to_val (count_word xs) x
+
+#eval word_count ["a", "b", "a", "c", "b", "a"]
 /-- info: true -/
 #guard_msgs in
 #eval word_count ["a", "b", "a", "c", "b", "a"] == [("a", 3), ("b", 2), ("c", 1)]
@@ -198,7 +213,9 @@ def t₃ : Tree :=
 /-
   Returns whether `n` is an element of the tree -/
 def mem (t : Tree) (n : ℕ) : Bool :=
-  sorry
+  match t with
+    | leaf z => (n == z)
+    | node z left right => (n == z) ∨ (mem left n) ∨ (mem right n)
 
 /-- info: true -/
 #guard_msgs in
@@ -211,7 +228,9 @@ def mem (t : Tree) (n : ℕ) : Bool :=
 /-
   Outputs a pre-order list of tree elements -/
 def toList₁ (t : Tree) : List ℕ :=
-  sorry
+  match t with
+    | leaf z => [z]
+    | node z left right => [z] ++ (toList₁ left) ++ (toList₁ right)
 
 /-- info: true -/
 #guard_msgs in
@@ -220,7 +239,9 @@ def toList₁ (t : Tree) : List ℕ :=
 /-
   Outputs a post-order list of tree elements -/
 def toList₂ (t : Tree) : List ℕ :=
-  sorry
+  match t with
+    | leaf z => [z]
+    | node z left right =>  (toList₂ left) ++ (toList₂ right) ++ [z]
 
 /-- info: true -/
 #guard_msgs in
@@ -229,7 +250,10 @@ def toList₂ (t : Tree) : List ℕ :=
 /-
   Outputs an in-order list of tree elements -/
 def toList₃ (t : Tree) : List ℕ :=
-  sorry
+  match t with
+  | leaf z => [z]
+  | node z left right =>  (toList₃ left) ++ [z] ++ (toList₃ right)
+
 
 /-- info: true -/
 #guard_msgs in
@@ -238,7 +262,9 @@ def toList₃ (t : Tree) : List ℕ :=
 /-
   Maps each tree element to a new element according to `f` -/
 def map (t : Tree) (f : ℕ → ℕ) : Tree :=
-  sorry
+  match t with
+  | leaf z => .leaf (f z)
+  | node z left right =>  .node (f z) (map left f) (map right f)
 
 /-- info: true -/
 #guard_msgs in
@@ -250,8 +276,9 @@ def map (t : Tree) (f : ℕ → ℕ) : Tree :=
   value at the node. `init` is now a function `leaf` that takes the value at a
   leaf. -/
 def fold {α : Type} (t : Tree) (f : α → α → ℕ → α) (leaf : ℕ → α) : α :=
-  sorry
-
+  match t with
+  | .leaf z => leaf z
+  | .node z left right =>  (f (fold left f leaf) (fold right f leaf) z)
 /-- info: 91 -/
 #guard_msgs in
 #eval t₁.fold (fun accₗ accᵣ n => accₗ + accᵣ + n) id
@@ -260,9 +287,17 @@ def fold {α : Type} (t : Tree) (f : α → α → ℕ → α) (leaf : ℕ → �
   Outputs a list of all paths from the root of the tree to a leaf (using the
   value of each node as its identifier). HINT: use the `fold` that you
   implemented above. -/
-def paths (t : Tree) : List (List ℕ) :=
-  sorry
 
+
+
+def paths (t : Tree) : List (List ℕ) :=
+  t.fold (fun left right v => (add_to_all left v) ++ (add_to_all right v)) (fun x => [[x]])
+where add_to_all (a : List (List ℕ)) (v : ℕ) : List (List ℕ) :=
+    match a with
+    | [] => []
+    | x :: xs => ([v] ++ x) :: (add_to_all xs v)
+
+#eval t₃.paths
 /-- info: true -/
 #guard_msgs in
 #eval t₃.paths == [[1, 2, 3], [1, 2, 4], [1, 5]]

@@ -17,7 +17,23 @@ abbrev odd (n : ℕ) :=
   ∃ (k : ℕ), n = 2 * k + 1
 
 theorem ex6_1 : ∀ n, even n ∨ odd n := by
-  sorry
+  intro n
+  induction n with
+  | zero => left; whnf;exists 0
+  | succ m ih =>
+    cases ih with
+    | inl h =>
+      right
+      whnf at *
+      obtain ⟨k,hk⟩ := h
+      rw [hk]
+      exists k
+    | inr h =>
+      left
+      whnf at *
+      obtain ⟨k,hk⟩ := h
+      rw [hk]
+      exists k + 1
 
 /-
   HINT: you may find the following two theorems useful for `ex6_2`. Given a
@@ -33,4 +49,9 @@ def fact (n : ℕ) :=
   else n * fact (n-1)
 
 theorem ex6_2 : ∀ (n : Nat), fact n ≥ 1 := by
-  sorry
+  intro n
+  induction n with
+  | zero => unfold fact; lia
+  | succ m ih =>
+    unfold fact
+    lia

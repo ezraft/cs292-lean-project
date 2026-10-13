@@ -25,14 +25,30 @@ theorem ex5_1
   (f : α → β) (g : β → γ)
   : surj f → surj g → surj (g ∘ f)
 := by
-  sorry
+  unfold surj
+  intro h1 h2 y
+  obtain ⟨z, hz⟩ := h2 y
+  obtain ⟨x, hx⟩ := h1 z
+  exists x
+  rw [Function.comp]
+  rw [hx]
+  exact hz
+
+
 
 theorem ex5_2
   (f : α → β) (g : β → α)
   (h : g ∘ f = id)
   : inj f
 := by
-  sorry
+  unfold inj
+  intro x y h1
+  have h2 : (g ∘ f) x = x := by rw[h] ; rfl
+  have h3 : (g ∘ f) y = y := by rw[h] ; rfl
+  have h4 : (g ∘ f) y = (g ∘ f) x := by
+    rw [Function.comp, Function.comp, h1]
+  lia
+
 
 /-
   HINT: the following theorems may be useful for `ex5_3`. Don't forget that
@@ -47,4 +63,22 @@ theorem ex5_3
   (h1 : f = fun z => a*z + b) (h2 : a ≠ 0)
   : bijection f
 := by
-  sorry
+  unfold bijection
+  constructor
+  · unfold inj
+    intro x y h
+    rw [h1] at h
+    have h4 : a * (x - y) = a * 0 := by linarith
+    have h5 : x - y = 0 := by
+      rw[mul_eq_mul_left_iff] at h4
+      cases h4 with
+      | inl h6 => exact h6
+      | inr h6 => contradiction
+    linarith
+  · unfold surj
+    intro y
+    rw [h1]
+    exists (y - b)/a
+    rw [← eq_sub_iff_add_eq]
+    rw [mul_div_cancel₀]
+    exact h2

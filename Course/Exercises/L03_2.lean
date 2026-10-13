@@ -65,7 +65,8 @@ theorem contains_empty
   (key₁: α)
   : contains (.empty (α := α) (β := β)) key₁ = false
 := by
-  sorry
+  unfold contains
+  rfl
 
 /-
   A map s.t. a key has been inserted contains that key -/
@@ -73,7 +74,15 @@ theorem contains_insert
   (bst : BstMap α β) (key₁ : α) (val : β)
   : contains (.insert bst key₁ val) key₁ = true
 := by
-  sorry
+  fun_induction insert with
+  | case1 key val => unfold contains; lia
+  | case2 left right v key val => unfold contains; lia
+  | case3 left right k v key val h1 h2 ih =>
+    unfold contains
+    lia
+  | case4 left right k v key val h1 h2 ih =>
+    unfold contains
+    lia
 
 /-
   If looking for a key, inserting a _different_ key doesn't affect the result -/
@@ -81,6 +90,56 @@ theorem contains_preserves
   (bst : BstMap α β) (key₁ key₂ : α) (val : β)
   : key₁ ≠ key₂ → contains (insert bst key₁ val) key₂ = contains bst key₂
 := by
-  sorry
+  intro h
+  fun_induction insert with
+    | case1 key₁ val =>
+      unfold contains
+      rw [if_neg]
+      rw [contains_empty]
+      lia
+      lia
+    | case2 left right v key₁ val =>
+      rfl
+    | case3 left right k v key₁ val h1 h2 ih =>
+      obtain h6 := ih h
+      unfold contains
+      by_cases h4 : k == key₂
+      case pos =>
+        rw [if_pos h4]
+        rw [if_pos h4]
+      case neg h3 =>
+        rw [if_neg h4]
+        by_cases h5 : key₂ < k
+        case pos =>
+          rw [if_pos h5]
+          rw [if_neg h4]
+          rw [if_pos h5]
+          exact h6
+        case neg =>
+          rw [if_neg h4]
+          rw [if_neg h5]
+          rw [if_neg h5]
+    | case4 left right k v key₁ val h1 h2 ih =>
+      obtain h6 := ih h
+      unfold contains
+      by_cases h4 : k == key₂
+      case pos =>
+        rw [if_pos h4]
+        rw [if_pos h4]
+      case neg h3 =>
+        rw [if_neg h4]
+        by_cases h5 : key₂ < k
+        case pos =>
+          rw [if_pos h5]
+          rw [if_neg h4]
+          rw [if_pos h5]
+        case neg =>
+          rw [if_neg h4]
+          rw [if_neg h5]
+          rw [if_neg h5]
+          exact h6
+
+
+
 
 end BstMap

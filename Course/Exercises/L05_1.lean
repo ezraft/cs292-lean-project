@@ -10,7 +10,6 @@ import Course.CourseLib
   Prove that `qsort` terminates. You may add a `termination_by` clause if you
   think it makes sense to do so.
 -/
-
 /-
   HINT: some potentially helpful theorems -/
 #check List.partition_eq_filter_filter
@@ -21,6 +20,10 @@ def qsort : List ℕ → List ℕ
   | x :: xs =>
     let ℓs := xs.partition (· ≤ x)
     qsort ℓs.1 ++ [x] ++ qsort ℓs.2
+termination_by ℓ => ℓ.length
 decreasing_by
-  sorry
-  sorry
+  rw [List.partition_eq_filter_filter]
+  simp_all
+  exact List.length_filter_le (fun x_1 ↦ decide (x_1 ≤ x)) xs
+  simp_all
+  exact List.length_filter_le (not ∘ fun x_1 ↦ decide (x_1 ≤ x)) xs

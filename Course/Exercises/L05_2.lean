@@ -61,7 +61,43 @@ lemma insert_preserves_pred
   (bst : BstMap α β) (key : α) (val : β) (P : α → β → Prop)
   : every_node_prop P bst → P key val → every_node_prop P (bst.insert key val)
 := by
-  sorry
+  intro h1 h2
+
+  fun_induction every_node_prop with
+  | case1 =>
+    unfold insert
+    unfold every_node_prop
+    constructor
+    · exact h2
+    · unfold every_node_prop
+      lia
+  | case2 left right k v ih2 ih1 =>
+    unfold insert
+    by_cases h : k = key
+    case pos =>
+      rw [if_pos h]
+      unfold every_node_prop
+      obtain ⟨h3, h4⟩ := h1
+      constructor
+      · exact h2
+      · exact h4
+    case neg =>
+      rw [if_neg h]
+      by_cases hk : key < k
+      case pos =>
+        rw [if_pos hk]
+        obtain ⟨h3, h4, h5⟩ := h1
+        unfold every_node_prop
+        constructor
+        · exact h3
+        · exact ⟨ih2 h4,h5⟩
+      case neg =>
+        rw [if_neg hk]
+        obtain ⟨h3, h4, h5⟩ := h1
+        unfold every_node_prop
+        constructor
+        · exact h3
+        · exact ⟨h4, ih1 h5⟩
 
 /-
   HINT: some potentially helpful theorems. We can use the `PartialOrder` theorem
@@ -83,6 +119,44 @@ theorem insert_preserves_bstinv
   (bst : BstMap α β) (key : α) (val : β)
   : BstInv bst → BstInv (insert bst key val)
 := by
-  sorry
+  intro h
+  fun_induction insert with
+  | case1 key val =>
+    apply BstInv.node_inv empty empty key val trivial trivial
+    simp [BstInv.empty_inv]
+    simp [BstInv.empty_inv]
+  | case2 left right v key val =>
+    obtain ⟨_⟩ := h
+    rename_i h2 h3 left_ih right_ih
+    apply BstInv.node_inv left right key val
+    exact left_ih
+    exact right_ih
+    exact h2
+    exact h3
+  | case3 left right k v key val h2 h3 ih1 =>
+    obtain ⟨_⟩ := h
+    rename_i h4 h5 left_ih right_ih
+    simp_all
+    apply BstInv.node_inv (left.insert key val) right k v
+    apply insert_preserves_pred
+    exact left_ih
+    exact h3
+    exact right_ih
+    exact ih1
+    exact h5
+  | case4 left right k v key val h2 h3 ih1 =>
+    obtain ⟨_⟩ := h
+    rename_i h4 h5 left_ih right_ih
+    simp_all
+    apply BstInv.node_inv left (right.insert key val) k v
+    exact left_ih
+    apply insert_preserves_pred
+    exact right_ih
+    have h6 : k < key := by
+      rw [lt_iff_le_and_ne]
+      exact ⟨h3, h2⟩
+    exact h6
+    exact h4
+    exact ih1
 
 end BstMap

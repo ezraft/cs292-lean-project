@@ -42,16 +42,39 @@ theorem ex3_1
   (ℓ : List ℕ) (n : ℕ)
   : sum (snoc ℓ n) = n + sum ℓ
 := by
-  sorry
+  fun_induction sum with
+  | case1 => unfold snoc; unfold sum; unfold sum; lia
+  | case2 x xs ih =>
+    rw [add_comm]
+    rw [add_comm] at ih
+    rw [add_assoc]
+    rw [← ih]
+    rfl
 
 theorem ex3_2
   (ℓ₁ ℓ₂ : List ℕ)
   : sum (ℓ₁ ++ ℓ₂) = sum ℓ₁ + sum ℓ₂
 := by
-  sorry
+  rw [← ex3_1]
+  fun_induction sum with
+  | case1 => rw [ex3_1]; rw[List.nil_append]; lia
+  | case2 x xs ih =>
+    rw [ex3_1]
+    rw [List.cons_append]
+    conv => lhs; unfold sum
+    rw [ih]
+    rw [ex3_1]
+    rw [add_assoc]
+
 
 theorem ex3_3
   (ℓ : List ℕ)
   : sum ℓ.reverse = sum ℓ
 := by
-  sorry
+  fun_induction sum with
+  | case1 => unfold sum; rfl
+  | case2 x xs ih =>
+    rw [add_comm]
+    rw [List.reverse_cons]
+    rw [← ih]
+    apply ex3_2

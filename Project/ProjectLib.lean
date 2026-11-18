@@ -3,9 +3,28 @@ import Batteries.CodeAction.Match -- code completion for `match` expressions
 import Mathlib.Data.List.AList
 import Mathlib.Data.List.Basic
 import Mathlib.Data.Nat.Basic -- ℕ notation for Nat
-import Mathlib.Data.Rel
+import Mathlib.Basic.Rel
 import Mathlib.Data.Set.Basic
 import Mathlib.Tactic
+import Mathlib.Data.BitVec
+import Mathlib.Algebra.Group.TypeTags.Basic
+import Mathlib.Data.Fintype.BigOperators
+import Mathlib.Data.ZMod.Basic
+import Mathlib.GroupTheory.SpecificGroups.Cyclic
+import Mathlib.GroupTheory.Subgroup.Simple
+import Mathlib.GroupTheory.OrderOfElement
+import Mathlib.Probability.Distributions.Uniform
+import Mathlib.Probability.ProbabilityMassFunction.Basic
+import Mathlib.Probability.ProbabilityMassFunction.Constructions
+import Mathlib.Probability.ProbabilityMassFunction.Monad
+import Mathlib.Analysis.Complex.Exponential
+import Cslib.Init
+import Cslib.Crypto.Computational.Basic
+import Cslib.Probability.BitString
+import Cslib.Computability.Probabilistic.PPT
+import Cslib.Languages.Probabilistic.Basic
+import Cslib.Probability.PMF
+import Cslib.Crypto.Game
 
 open Lean Elab Command Tactic Expr MVarId
 

@@ -1,22 +1,28 @@
 name = "cs292-lean"
 version = "0.1.0"
 keywords = ["math"]
-defaultTargets = ["Course"]
+defaultTargets = ["Project"]
 
 [leanOptions]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`
 autoImplicit = false
 maxSynthPendingDepth = 3
 
+# [[require]]
+# name = "comparator"
+# scope = "leanprover-community"
+# rev = "master"
+
+
+[[require]]
+name = "cslib"
+git = "https://github.com/SamuelSchlesinger/cslib"
+rev = "crypto"
+
 [[require]]
 name = "mathlib"
 scope = "leanprover-community"
-rev = "v4.33.1"
-
-[[require]]
-name = "comparator"
-scope = "leanprover-community"
-rev = "master"
+rev = "v4.34.1"
 
 [[lean_lib]]
-name = "Course"
+name = "Project"
